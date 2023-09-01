@@ -1,0 +1,50 @@
+from flask import Flask, request
+import requests
+import re
+from telegram import Bot
+
+app = Flask(__name__)
+bot = Bot(token='YOUR_BOT_TOKEN_HERE')
+
+@app.route('/check_tg_links', methods=['POST'])
+def check_tg_links():
+    user_input = request.form.get('user_input')
+    chat_id = request.form.get('chat_id')
+    
+    tg_links = re.findall(r'https://t\.me/[A-Za-z0-9_+/]+', user_input)
+    
+    for link in tg_links:
+        try:
+            response = requests.head(link, allow_redirects=True)
+            if response.status_code == 200:
+                msg = f"{link} is a valid public channel."
+            else:
+                msg = f"{link} is an invalid link."
+        except Exception as e:
+            msg = f"Error checking {link}: {e}"
+        
+        bot.send_message(chat_id=chat_id, text=msg)
+
+    return "Done"
+
+if __name__ == '__main__':
+    app.run()
+
+
+def handle_message(update, context):
+    user_input = update.message.text
+    tg_links = find_tg_links(user_input)
+    for link in tg_links:
+        result = check_tg_link(link)
+        update.message.reply_text(result)
+        time.sleep(1)
+
+def main():
+    updater = Updater(token='YOUR_BOT_TOKEN', use_context=True)
+    dp = updater.dispatcher
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
