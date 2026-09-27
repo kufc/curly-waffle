@@ -1,0 +1,11 @@
+{
+  "name": "technews-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // 每 15 分鐘抓一次新聞並產生中文摘要
+  "triggers": { "crons": ["*/15 * * * *"] },
+  // 建立方式：npx wrangler kv namespace create NEWS，再把 id 貼到這裡
+  "kv_namespaces": [{ "binding": "NEWS", "id": "REPLACE_WITH_KV_ID" }]
+  // API key：npx wrangler secret put ANTHROPIC_API_KEY
+}

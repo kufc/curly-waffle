@@ -1,0 +1,19 @@
+{
+  "name": "technews-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "fast-xml-parser": "^5.11.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260927.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.142.0"
+  }
+}

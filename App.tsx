@@ -15,7 +15,7 @@ import {
   View,
 } from 'react-native';
 import { CATEGORIES } from './src/feeds';
-import { Article, fetchAllNews } from './src/news';
+import { Article, loadNews } from './src/news';
 
 const FILTERS = [
   { key: 'all', label: '全部' },
@@ -47,7 +47,7 @@ export default function App() {
   const [query, setQuery] = useState('');
 
   const load = useCallback(async () => {
-    const r = await fetchAllNews();
+    const r = await loadNews();
     setArticles(r.articles);
     setErrors(r.errors);
   }, []);
@@ -66,7 +66,7 @@ export default function App() {
     const q = query.trim().toLowerCase();
     return articles.filter((a) => {
       const okFilter = filter === 'all' || a.region === filter || a.categories.includes(filter);
-      const okQuery = !q || a.title.toLowerCase().includes(q) || a.summary.toLowerCase().includes(q);
+      const okQuery = !q || `${a.title} ${a.titleZh ?? ''} ${a.summary} ${a.summaryZh ?? ''}`.toLowerCase().includes(q);
       return okFilter && okQuery;
     });
   }, [articles, filter, query]);
@@ -118,10 +118,10 @@ export default function App() {
               <Text style={[styles.meta, { color: c.accent }]}>
                 {item.source} · {timeAgo(item.publishedAt)}
               </Text>
-              <Text style={[styles.headline, { color: c.text }]}>{item.title}</Text>
-              {!!item.summary && (
+              <Text style={[styles.headline, { color: c.text }]}>{item.titleZh ?? item.title}</Text>
+              {!!(item.summaryZh ?? item.summary) && (
                 <Text numberOfLines={3} style={{ color: c.sub, lineHeight: 20 }}>
-                  {item.summary}
+                  {item.summaryZh ?? item.summary}
                 </Text>
               )}
             </Pressable>

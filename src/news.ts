@@ -10,6 +10,9 @@ export interface Article {
   region: Region;
   publishedAt: number;
   categories: string[];
+  // 後端 Worker 產生的中文標題與摘要（直接抓 RSS 時沒有）
+  titleZh?: string;
+  summaryZh?: string;
 }
 
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@' });
@@ -52,6 +55,19 @@ async function fetchFeed(src: FeedSource): Promise<Article[]> {
       categories: CATEGORIES.filter((c) => c.keywords.test(haystack)).map((c) => c.key),
     };
   });
+}
+
+// 設定 EXPO_PUBLIC_API_URL（Worker 網址）後改從後端取得含中文摘要的新聞
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+
+export async function loadNews(): Promise<{ articles: Article[]; errors: string[] }> {
+  if (API_URL) {
+    try {
+      const res = await fetch(`${API_URL}/news`);
+      if (res.ok) return { articles: await res.json(), errors: [] };
+    } catch {}
+  }
+  return fetchAllNews();
 }
 
 export async function fetchAllNews(): Promise<{ articles: Article[]; errors: string[] }> {
